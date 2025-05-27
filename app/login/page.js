@@ -35,7 +35,7 @@ export default function Page() {
 
     return (
         <>
-        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="pt-[75px] flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md bg-slate-50 shadow-lg rounded-lg p-8">
                 <div className="">
                     <Image
