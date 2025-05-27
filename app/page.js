@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Head from "next/head";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 

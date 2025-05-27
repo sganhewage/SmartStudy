@@ -49,18 +49,19 @@ export default function Page() {
             <div className="sm:mx-auto sm:w-full sm:max-w-md bg-slate-50 shadow-lg rounded-lg p-8">
                 <div className="">
                     <Image
-                        width = {48}
-                        height = {48}
-                        alt="Your Company"
-                        src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                        className="mx-auto h-10 w-auto"
+                        width = {75}
+                        height = {75}
+                        alt="Logo"
+                        //src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                        src="/logo.png"
+                        className="mx-auto h-30 w-auto"
                     />
-                    <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+                    <h2 className="mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
                         Sign up for an account
                     </h2>
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-5">
                     <form action="#" method="POST" className="space-y-4">
                         <div>
                             <label htmlFor="email" className="block text-xl font-medium text-gray-900">
@@ -73,7 +74,7 @@ export default function Page() {
                                 type="email"
                                 required
                                 autoComplete="email"
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-600 text-xl"
+                                className="transition-all duration-150 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-brand text-xl"
                                 value = {user.email}
                                 onChange={(e) => setUser({...user, email: e.target.value})}
                                 />
@@ -98,7 +99,7 @@ export default function Page() {
                                 type="password"
                                 required
                                 autoComplete="current-password"
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-600 text-xl"
+                                className="transition-all duration-150 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-brand text-xl"
                                 value = {user.password}
                                 onChange={(e) => setUser({...user, password: e.target.value})}
                                 />
@@ -108,7 +109,7 @@ export default function Page() {
                         <div>
                         <button
                             type="submit"
-                            className="mb-4 mt-6 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xl font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            className="transition-all duration-150 mb-4 mt-6 flex w-full justify-center rounded-md bg-brand px-3 py-1.5 text-xl font-semibold text-white shadow-xs hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             onClick={(e) => {handleSubmit(e);}}
                         >
                             Sign up
@@ -120,7 +121,7 @@ export default function Page() {
 
                     <p className="mt-6 text-center text-md text-gray-500">
                         Already have an account?{' '}
-                        <a href="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                        <a href="/login" className="transition-all duration-150 font-semibold text-brand hover:text-accent">
                             Log in
                         </a>
                     </p>

@@ -10,6 +10,8 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: "#0462e6",         // Deep blue (your main accent color)
+        accent: "#00b7d1",         // Lighter blue from the logo
       },
     },
   },
