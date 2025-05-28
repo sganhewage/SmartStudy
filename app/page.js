@@ -9,7 +9,7 @@ import Navbar from "./components/navbar";
 export default function Home() {
   const router = useRouter();
 
-  const handleClick = async () => {
+  const handleSignout = async () => {
     try {
       const res = await axios.post("/api/logout");
       if (res.status === 200) {
@@ -17,6 +17,14 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Logout failed", error);
+    }
+  };
+
+  const handleNewSession = async () => {
+    try {
+      router.push("/newSession");
+    } catch (error) {
+      console.error("Couldn't Access Page", error);
     }
   };
 
@@ -38,13 +46,13 @@ export default function Home() {
           <p className="text-xl mb-8">A smart way to manage your study sessions</p>
           <div className="flex justify-center gap-4 flex-wrap">
             <button
-              onClick={handleClick}
+              onClick={handleNewSession}
               className="font-bold px-6 py-3 bg-brand text-white rounded hover:bg-accent transition"
             >
               Create New Study Session
             </button>
             <button
-              onClick={handleClick}
+              onClick={handleSignout}
               className="font-bold px-6 py-3 bg-black text-white rounded hover:bg-accent transition"
             >
               Existing Study Sessions
