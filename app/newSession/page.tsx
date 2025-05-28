@@ -2,10 +2,20 @@
 
 import { useState } from "react";
 import { Paperclip, X, Upload, Trash2 } from "lucide-react"; // Optional icon lib
+import { useRouter } from "next/navigation";
+import { useSessionContext } from "./SessionContext"; // Import context
 
 export default function NewStudySessionPage() {
-    const [files, setFiles] = useState<File[]>([]);
-    const [instructions, setInstruction] = useState<string>("");
+    const {
+        files,
+        instructions,
+        sessionName,
+        sessionDescription,
+        setFiles,
+        setInstructions,
+        setSessionName,
+        setSessionDescription
+    } = useSessionContext();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -19,16 +29,57 @@ export default function NewStudySessionPage() {
 
     const clearFiles = () => setFiles([]);
 
+    const router = useRouter();
+    const handleNext = () => {
+        if (files.length === 0 && !instructions.trim()) {
+            alert("Please upload at least one file or provide instructions.");
+            return;
+        }
+        if (!sessionName.trim()) {
+            alert("Please enter a session name.");
+            return;
+        }
+
+        try {
+            router.push('/newSession/create');
+        } catch (error) {
+            console.error("Error creating study session:", error);
+        }
+    }
+
     return (
         <div className="h-[calc(100vh-80px)] pt-[80px] px-6 sm:px-16 bg-gray-50 text-gray-900 flex flex-col">
             <div className="flex flex-row gap-x-5">
                 <img src="/logo.png" alt="SmartStudy Logo" className="h-10 w-10" />
                 <h1 className="text-4xl font-bold text-brand mb-2">Create a New Study Session</h1>
-                <button className="ml-auto mr-5 bg-brand hover:bg-accent text-white text-xl font-semibold py-2 px-6 rounded-md transition">
+                <button className="ml-auto mr-5 bg-brand hover:bg-accent text-white text-xl font-semibold py-2 px-6 rounded-md transition"
+                        onClick={handleNext}
+                >   
                     Next
                 </button>
             </div>
             <p className="text-lg text-gray-600 mb-8">Upload your files and provide any custom instructions (content to focus on, how to use uploaded files, etc.).</p>
+
+            <div className="flex flex-col lg:flex-row items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Session Name</h2>
+                <input
+                    type="text"
+                    placeholder="Enter session name"
+                    value={sessionName.length == 0 ? "" : sessionName}
+                    required={true}
+                    className="w-full lg:w-1/3 p-2 border border-gray-300 rounded-md focus:outline-brand focus:ring-1 focus:ring-accent text-lg"
+                    onChange={(e) => setSessionName(e.target.value)}
+                />
+
+                <h2 className="text-lg font-semibold ml-4">Session Description</h2>
+                <input
+                    type="text"
+                    placeholder="Enter session description (optional)"
+                    value={sessionDescription.length == 0 ? "" : sessionDescription}
+                    className="w-full lg:w-1/3 p-2 border border-gray-300 rounded-md focus:outline-brand focus:ring-1 focus:ring-accent text-lg"
+                    onChange={(e) => setSessionDescription(e.target.value)}
+                />
+            </div>
 
             <div className="flex flex-col h-full lg:flex-row gap-4 w-full overflow-hidden mb-4">
                 {/* File Upload Box */}
@@ -77,9 +128,10 @@ export default function NewStudySessionPage() {
                 <div className="w-full lg:w-2/3 h-full">
                     <textarea
                         placeholder="Enter any extra instructions..."
+                        value={instructions.length == 0 ? "" : instructions}
                         rows={5}
                         className="w-full h-full p-4 rounded-md border border-gray-300 focus:outline-brand focus:ring-1 focus:ring-accent text-lg resize-none"
-                        onChange={(e) => setInstruction(e.target.value)}
+                        onChange={(e) => setInstructions(e.target.value)}
                     />
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import User from "@/models/userModel";
 import connect from "@/dbConfig";
+import User from "@/models/userModel";
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

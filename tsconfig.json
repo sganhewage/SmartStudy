@@ -21,14 +21,19 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    },
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-  ],
+    "**/*.tsx",
+    "**/*.jsx",
+    "**/*.js"
+, "app/api/updateFiles/route.js"  ],
   "exclude": [
     "node_modules"
   ]
