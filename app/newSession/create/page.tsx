@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useSessionContext } from '../SessionContext';
 import { X } from 'lucide-react';
+import axios from "axios";
 
 const studyOptions = [
   { label: 'Study Guide', value: 'studyGuide', icon: '📘', description: 'Summarizes topics and key points' },
@@ -14,43 +16,78 @@ const studyOptions = [
 ];
 
 export default function StudyContentSelection() {
-  const { sessionName, sessionDescription } = useSessionContext();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [generationList, setGenerationList] = useState<string[]>([]);
-  const [configMap, setConfigMap] = useState<Record<string, any>>({});
+    const { sessionName, sessionDescription, instructions, files } = useSessionContext();
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [generationList, setGenerationList] = useState<string[]>([]);
+    const [configMap, setConfigMap] = useState<Record<string, any>>({});
 
-  const toggleQuestionType = (type: string) => {
-    setConfigMap(prev => ({
-      ...prev,
-      [selectedOption!]: {
-        ...prev[selectedOption!],
-        questionTypes: {
-          ...prev[selectedOption!]?.questionTypes,
-          [type]: !prev[selectedOption!]?.questionTypes?.[type]
+    const toggleQuestionType = (type: string) => {
+        setConfigMap(prev => ({
+        ...prev,
+        [selectedOption!]: {
+            ...prev[selectedOption!],
+            questionTypes: {
+            ...prev[selectedOption!]?.questionTypes,
+            [type]: !prev[selectedOption!]?.questionTypes?.[type]
+            }
         }
-      }
-    }));
-  };
+        }));
+    };
 
-  const addToList = (value: string) => {
-    if (!generationList.includes(value)) {
-      setGenerationList([...generationList, value]);
-    }
-  };
+    const addToList = (value: string) => {
+        if (!generationList.includes(value)) {
+        setGenerationList([...generationList, value]);
+        }
+    };
 
-  const removeFromList = (value: string) => {
-    setGenerationList(generationList.filter(item => item !== value));
-  };
+    const removeFromList = (value: string) => {
+        setGenerationList(generationList.filter(item => item !== value));
+    };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (generationList.length === 0) {
       alert("Please select at least one item to generate.");
       return;
     }
-    console.log("Generating:", {
-      types: generationList,
-      configMap
-    });
+
+    try {
+        const formData = new FormData();
+        formData.append('sessionName', sessionName);
+        formData.append('sessionDescription', sessionDescription);
+        formData.append('instructions', instructions);
+        formData.append('generationList', JSON.stringify(generationList));
+        formData.append('configMap', JSON.stringify(configMap));
+
+        files.forEach((file, index) => {
+            formData.append('files', file); // browser will handle the correct MIME
+        });
+
+        // console.log("=== FormData Debug ===");
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value);
+        //     if (value instanceof File) {
+        //         console.log(`  File details - Name: ${value.name}, Size: ${value.size}, Type: ${value.type}`);
+        //     }
+        // }
+        // console.log("Files array length:", files.length);
+        // console.log("Files array:", files);
+
+        const res = await axios.post('/api/generateStudyContent', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (res.status === 200) {
+            alert("Content generated successfully!");
+            // Optionally, redirect or clear state
+            //setGenerationList([]);
+            //setConfigMap({});
+        } else {
+            alert("Failed to generate content. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error generating content:", error);
+        alert("An error occurred while generating content. Please try again.");
+    }
   };
 
   const renderQuestionTypeToggles = () => {
@@ -113,6 +150,7 @@ export default function StudyContentSelection() {
           <h2 className="text-2xl font-bold">Configuration</h2>
           <button
             onClick={handleGenerate}
+            disabled={!selectedOption}
             className="bg-brand hover:bg-accent text-white px-6 py-2 rounded-md text-lg font-semibold transition"
           >
             Generate

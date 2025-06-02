@@ -28,7 +28,7 @@ export const POST = async (req) => {
         const tokenData = jwt.sign(
             {id: newUser._id},
             process.env.JWT_SECRET_KEY,
-            {expiresIn: "1h"}
+            {expiresIn: "1d"}
         );
 
         const res = NextResponse.json({message: "User created successfully"}, {status: 200});

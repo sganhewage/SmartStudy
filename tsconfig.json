@@ -23,8 +23,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
@@ -32,8 +35,9 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.jsx",
-    "**/*.js"
-, "app/api/updateFiles/route.js"  ],
+    "**/*.js",
+    "pages/api/generateStudyContent/generateStudyContent.js"
+  ],
   "exclude": [
     "node_modules"
   ]

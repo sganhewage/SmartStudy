@@ -1,17 +1,25 @@
 import mongoose from 'mongoose';
 
+const fileSchema = new mongoose.Schema({
+  fileName: String,
+  fileType: String,
+  gridFsId: String
+}, { _id: false });
+
+const sessionSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, default: '' },
+  instructions: { type: String, default: '' }, // renamed to match frontend
+  files: [fileSchema],
+  generationList: [String], // array of selected generation options
+  configMap: mongoose.Schema.Types.Mixed, // accepts dynamic structure
+  createdAt: { type: Date, default: Date.now }
+}, { _id: false });
+
 const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    sessions: [
-        {
-            name: { type: String, required: true },
-            description: { type: String, default: '' },
-            files: { type: [String], default: [] }, // store file URLs or paths
-            instruction: { type: String, default: '' },
-            createdAt: { type: Date, default: Date.now }
-        }
-    ]
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  sessions: [sessionSchema]
 });
 
 const User = mongoose.models.users || mongoose.model('users', userSchema);
