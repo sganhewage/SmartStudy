@@ -29,9 +29,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Form parsing error' });
     }
 
-    console.log("FIELDS:", fields);
-console.log("FILES:", files);
-
     try {
       // Extract and parse form fields
       const {
