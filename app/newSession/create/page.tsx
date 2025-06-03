@@ -121,7 +121,7 @@ export default function StudyContentSelection() {
 
   return (
     <>
-        <div className="min-h-[calc(100vh-80px)] pt-[80px] px-6 sm:px-16 bg-gray-50 text-gray-900 flex relative z-0">
+        <div className="min-h-[calc(100vh-95px)] pt-[95px] px-6 sm:px-16 bg-gray-50 text-gray-900 flex relative z-0">
             {/* Left Pane */}
             <div className="w-full lg:w-1/3 border-r border-gray-300 pr-6">
                 <h2 className="text-2xl font-bold text-brand mb-6">Select Content Type</h2>

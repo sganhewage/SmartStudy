@@ -47,8 +47,8 @@ export async function downloadFromGridFS(fileId) {
         downloadStream.on('data', chunk => chunks.push(chunk));
         downloadStream.on('error', reject);
         downloadStream.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        resolve({ buffer, contentType: downloadStream.s.options.contentType });
+            const buffer = Buffer.concat(chunks);
+            resolve({ buffer, contentType: downloadStream.s.options.contentType });
         });
     });
 }

@@ -109,7 +109,7 @@ export default function Home() {
       <main 
         id="existing-sessions"
         ref={mainRef}
-        className="px-8 sm:px-20 py-20 flex flex-col items-center gap-12 bg-white pt-[85px] min-h-[calc(100vh-85px)]"
+        className="px-8 sm:px-20 py-20 flex flex-col items-center gap-12 bg-gray-50 pt-[95px] min-h-[calc(100vh-95px)]"
       >
         <h2 className="text-3xl font-semibold">Existing Study Sessions</h2>
         <div className="w-full flex flex-col sm:flex-row items-center justify-start mb-6 gap-4">

@@ -70,9 +70,9 @@ const Navbar = ({ scrollHide }: NavbarProps) => {
         }
     }
 
-    const enableScrollHide = (pathname === '/login' || pathname === '/signup')
-        ? false // Disable scroll hide on login/signup pages
-        : (scrollHide !== undefined ? scrollHide : false); // Default to false if not provided
+    const enableScrollHide = (pathname === '/')
+        ? (scrollHide !== undefined ? scrollHide : false) // Disable scroll hide on login/signup pages
+        : false; // Default to false if not provided
 
     const [scrollVisible, setScrollVisible] = useState(false);
     const [mouseVisible, setMouseVisible] = useState(false);

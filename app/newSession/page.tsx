@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from "react";
 import { Paperclip, X, Upload, Trash2 } from "lucide-react"; // Optional icon lib
 import { useRouter } from "next/navigation";
 import { useSessionContext } from "./SessionContext"; // Import context
@@ -48,7 +47,7 @@ export default function NewStudySessionPage() {
     }
 
     return (
-        <div className="h-[calc(100vh-80px)] pt-[80px] px-6 sm:px-16 bg-gray-50 text-gray-900 flex flex-col">
+        <div className="h-[calc(100vh-95px)] pt-[95px] px-6 sm:px-16 bg-gray-50 text-gray-900 flex flex-col">
             <div className="flex flex-row gap-x-5">
                 <img src="/logo.png" alt="SmartStudy Logo" className="h-10 w-10" />
                 <h1 className="text-4xl font-bold text-brand mb-2">Create a New Study Session</h1>
