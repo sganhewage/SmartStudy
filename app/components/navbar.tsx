@@ -15,8 +15,8 @@ const Navbar = ({ scrollHide }: NavbarProps) => {
 
     var navItems = [
         { name: 'Home', href: '/' },
-        { name: 'New Project', href: '/new' },
-        { name: 'Projects', href: '/projects' },
+        { name: 'New Project', href: '/newSession' },
+        { name: 'Projects', href: '/#existing-sessions' },
         { name: 'Contact Us', href: '/contact' },
     ];
 
@@ -28,7 +28,6 @@ const Navbar = ({ scrollHide }: NavbarProps) => {
             { name: 'Contact Us', href: '/contact' },
         ];
     }
-
 
     const colorPickerLogin = pathname === '/signup' ? 'bg-brand' : 'bg-gray-300'; 
     const colorPickerLoginHover = pathname === '/signup' ? 'bg-accent' : 'bg-gray-600'; 

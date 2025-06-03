@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import User from '@/models/userModel';
 
 export default async function connect() {
     try {
@@ -13,4 +15,15 @@ export default async function connect() {
     } catch (e) {
         console.log(e);
     }
+}
+
+export const getUserID = async (req) => {
+    // Get user token
+    const token = req.cookies?.token;
+    if (!token) return "";
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user = await User.findById(decoded.id);
+    if (!user) return "";
+    return user._id;
 }
