@@ -165,7 +165,7 @@ export default function Home() {
               </div>
               <p className="text-gray-600 mb-4">{session.description}</p>
               <button
-                onClick={() => router.push(`/session/${session._id}`)}
+                onClick={() => {router.push(`/sessionView/${session._id}`)}}
                 className="bg-brand text-white px-4 py-2 rounded hover:bg-accent transition"
               >
                 View Session

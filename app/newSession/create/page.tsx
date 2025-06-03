@@ -58,8 +58,11 @@ export default function StudyContentSelection() {
             formData.append('sessionName', sessionName);
             formData.append('sessionDescription', sessionDescription);
             formData.append('instructions', instructions);
-            formData.append('generationList', JSON.stringify(generationList));
-            formData.append('configMap', JSON.stringify(configMap));
+            formData.set('configMap', JSON.stringify(configMap));
+
+            generationList.forEach((item) => {
+                formData.append('generationList', item);
+            });
 
             files.forEach((file, index) => {
                 formData.append('files', file); // browser will handle the correct MIME

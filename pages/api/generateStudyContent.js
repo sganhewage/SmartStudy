@@ -5,6 +5,7 @@ import { uploadToGridFS } from '@/models/gridfsUtils'; // update path if needed
 import connect from '@/dbConfig';
 import jwt from 'jsonwebtoken';
 import User from '@/models/userModel';
+import mongoose from 'mongoose';
 
 // Important for file uploads in Pages Router
 export const config = {
@@ -87,7 +88,7 @@ console.log("FILES:", files);
       if (!user) return res.status(404).json({ message: 'User not found' });
 
       // Save session
-      user.sessions.push({
+      const session = user.sessions.create({
         name: sessionName[0], // assuming sessionName is an array
         description: sessionDescription[0] || '', // assuming sessionDescription is an array
         instructions: instructions[0] || '', // assuming instructions is an array
@@ -97,7 +98,12 @@ console.log("FILES:", files);
         createdAt: new Date(),
       });
 
+      await user.sessions.push(session);
       await user.save();
+      
+      //print session id
+      console.log('New session created with ID:', session._id);
+      
 
       return res.status(200).json({
         message: 'Session created successfully',

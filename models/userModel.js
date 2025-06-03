@@ -7,6 +7,7 @@ const fileSchema = new mongoose.Schema({
 }, { _id: false });
 
 const sessionSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
     name: { type: String, required: true },
     description: { type: String, default: '' },
     instructions: { type: String, default: '' }, // renamed to match frontend
