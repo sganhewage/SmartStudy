@@ -5,9 +5,21 @@ import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export const POST = async (req) => {
-    console.log("🟢 /api/signup hit");
-    console.log("JWT_SECRET:", process.env.JWT_SECRET_KEY);
-    console.log("MONGODB_URI:", process.env.MONGODB_URL);
+    console.log("Login API called");
+    //log any and all env variables
+    console.log("Environment Variables:");
+    for (const [key, value] of Object.entries(process.env)) {
+        console.log(`${key}: ${value}`);
+    }
+    // Ensure the database is connected
+    if (!process.env.JWT_SECRET_KEY) {
+        console.error("JWT_SECRET_KEY is not set in environment variables");
+        return NextResponse.json({message: "Internal server error"}, {status: 500});
+    }
+    if (!process.env.MONGODB_URL) {
+        console.error("MONGODB_URL is not set in environment variables");
+        return NextResponse.json({message: "Internal server error"}, {status: 500});
+    }
 
     await connect();
 
