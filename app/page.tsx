@@ -24,6 +24,7 @@ export default function Home() {
     generationList: [string], 
     configMap: string,
     createdAt: Date
+    lastUpdated: Date
   };
   const [sessions, setSessions] = useState<Session[]>([]);
 
@@ -147,9 +148,9 @@ export default function Home() {
           )
           .sort((a, b) => {
             if (sortBy === "newest") {
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
             } else if (sortBy === "oldest") {
-              return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+              return new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime();
             } else if (sortBy === "name") {
               return a.name.localeCompare(b.name);
             }
@@ -160,7 +161,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold mb-2">{session.name}</h3>
                 <span className="text-sm text-gray-500">
-                  {new Date(session.createdAt).toLocaleString()}
+                  {new Date(session.lastUpdated).toLocaleString()}
                 </span>
               </div>
               <p className="text-gray-600 mb-4">{session.description}</p>

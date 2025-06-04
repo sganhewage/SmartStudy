@@ -14,8 +14,9 @@ const sessionSchema = new mongoose.Schema({
     files: [fileSchema],
     generationList: [String], // array of selected generation options
     configMap: mongoose.Schema.Types.Mixed, // accepts dynamic structure
-    createdAt: { type: Date, default: Date.now }
-});
+    // createdAt: { type: Date, default: Date.now },
+    // updatedAt: { type: Date, default: Date.now }
+}, {timestamps: true});
 
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },

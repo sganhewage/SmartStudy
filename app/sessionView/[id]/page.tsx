@@ -45,6 +45,30 @@ export default function SessionPage() {
         fetchSession();
     }, [id]);
 
+    const [hasChanges, setHasChanges] = useState(false);
+    useEffect(() => {
+        if (!session) return;
+
+        const basicFieldsChanged =
+            editName !== session.name ||
+            editDescription !== session.description ||
+            editInstructions !== session.instructions;
+
+        const filesChanged =
+            newFiles.length > 0 ||
+            removedFileIndices.length > 0;
+
+        setHasChanges(basicFieldsChanged || filesChanged);
+    }, [
+        session,
+        editName,
+        editDescription,
+        editInstructions,
+        newFiles,
+        removedFileIndices
+    ]);
+
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setNewFiles([...newFiles, ...Array.from(e.target.files)]);
@@ -92,6 +116,22 @@ export default function SessionPage() {
         }
     };
 
+    const handleDelete = async () => {
+        if (!confirm('Are you sure you want to delete this session? This action cannot be undone.')) return;
+
+        try {
+            await axios.delete(`/api/deleteSession`, {
+                data: { sessionId: session._id }
+            });
+            alert("Session deleted.");
+            // Redirect or refresh page
+            window.location.href = "/#existing-sessions"; // Change this to the appropriate route
+        } catch (err) {
+            console.error("Failed to delete session:", err);
+            alert("Failed to delete session.");
+        }
+    }
+
     if (!session) return <p className="p-6">Loading session...</p>;
 
     return (
@@ -101,12 +141,20 @@ export default function SessionPage() {
                     <div className="mb-8 relative">
                         <h1 className="text-4xl font-bold text-brand mb-2">{session.name}</h1>
                         <p className="text-gray-600 text-lg">{session.description}</p>
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="absolute top-6 right-6 bg-accent text-white px-4 py-2 rounded hover:bg-gray-600 transition z-10"
-                        >
-                            Edit
-                        </button>
+                        <div className="absolute top-6 right-6 flex gap-2 z-10">
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="bg-accent text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -115,6 +163,10 @@ export default function SessionPage() {
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500">Created:</p>
                                 <p className="text-md">{new Date(session.createdAt).toLocaleString()}</p>
+                            </div>
+                            <div className="mb-4">
+                                <p className="text-sm text-gray-500">Last Updated:</p>
+                                <p className="text-md">{new Date(session.lastUpdated).toLocaleString()}</p>
                             </div>
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500">Instructions:</p>
@@ -267,13 +319,18 @@ export default function SessionPage() {
                         <div className="flex justify-end gap-4 mt-4">
                             <button
                                 onClick={() => setIsEditing(false)}
-                                className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100"
+                                className="px-4 py-2 rounded border bg-red-500 border-gray-400 text-white hover:bg-gray-500"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSave}
-                                className="bg-brand text-white px-4 py-2 rounded hover:bg-accent transition"
+                                disabled={!hasChanges || isSaving}
+                                className={`px-4 py-2 rounded transition ${
+                                    !hasChanges || isSaving
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-brand text-white hover:bg-accent'
+                                }`}
                             >
                                 {isSaving ? 'Saving...' : 'Save'}
                             </button>

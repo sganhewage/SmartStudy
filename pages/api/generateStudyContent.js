@@ -92,7 +92,8 @@ export default async function handler(req, res) {
         files: gridfsFiles,
         generationList: parsedGenerations,
         configMap: parsedConfig,
-        createdAt: new Date(),
+        // createdAt: new Date(),
+        // updatedAt: new Date()
       });
 
       await user.sessions.push(session);

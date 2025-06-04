@@ -91,12 +91,17 @@ export default async function handler(req, res) {
             session.name = name[0];
             session.description = description[0] || '';
             session.instructions = instructions[0] || '';
+            // session.updatedAt = new Date();
             session.files = [
                 ...user.sessions.id(sessionId).files.filter(f => parsedRemainingIds.includes(f.gridFsId)),
                 ...gridfsFiles
             ];
 
-            
+            session.lastUpdated = new Date();
+            user.markModified('sessions');
+            console.log("Returned session:", session);
+
+
             await user.save();
 
             return res.status(200).json({ message: 'Session updated successfully' });
