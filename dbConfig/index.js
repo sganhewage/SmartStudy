@@ -4,6 +4,9 @@ import User from '@/models/userModel';
 
 export default async function connect() {
     try {
+        console.log("Connecting to MongoDB...");
+        console.log("MongoDB URL: ", process.env.MONGODB_URL);
+        
         await mongoose.connect(process.env.MONGODB_URL);
         const connect = mongoose.connection;
 

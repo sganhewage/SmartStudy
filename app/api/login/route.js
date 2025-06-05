@@ -6,29 +6,19 @@ import jwt from 'jsonwebtoken';
 
 export const POST = async (req) => {
     console.log("Login API called");
-    //log any and all env variables
-    console.log("Environment Variables:");
-    for (const [key, value] of Object.entries(process.env)) {
-        console.log(`${key}: ${value}`);
-    }
-    // Ensure the database is connected
-    if (!process.env.JWT_SECRET_KEY) {
-        console.error("JWT_SECRET_KEY is not set in environment variables");
-        return NextResponse.json({message: "Internal server error"}, {status: 500});
-    }
-    if (!process.env.MONGODB_URL) {
-        console.error("MONGODB_URL is not set in environment variables");
-        return NextResponse.json({message: "Internal server error"}, {status: 500});
-    }
 
     await connect();
+    console.log("Connected to database");
 
     try {
         const {email, password} = await req.json();
+        console.log("received email: ", email);
+        console.log("received password: ", password);
 
         const normalizedEmail = email.toLowerCase().trim();
         const user = await User.findOne({email: normalizedEmail});
         console.log(user);
+        
         if (!user) {return NextResponse.json({message: "User does not exist"}, {status: 400});}
 
         const validPassword = await bcryptjs.compare(password, user.password);
@@ -46,7 +36,7 @@ export const POST = async (req) => {
         return res;
         
     } catch (e) {
-        console.log(e);
-        return NextResponse.error();
+        console.log("Login API Error: ",e);
+        return NextResponse.error(NextResponse.json({ message: "Login API error" }, { status: 500 }));
     }
 }
