@@ -1,0 +1,20 @@
+# LLM inference
+transformers
+torch
+
+# PDF input/output
+pdfplumber
+fpdf
+
+# API framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# (Optional) GGUF model support
+#llama-cpp-python
+
+# audio and picture processing
+pytesseract
+Pillow
+speechrecognition

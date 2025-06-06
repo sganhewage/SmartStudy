@@ -5,10 +5,7 @@ import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export const POST = async (req) => {
-    console.log("Login API called");
-
     await connect();
-    console.log("Connected to database");
 
     try {
         const {email, password} = await req.json();
@@ -18,7 +15,7 @@ export const POST = async (req) => {
         const normalizedEmail = email.toLowerCase().trim();
         const user = await User.findOne({email: normalizedEmail});
         console.log(user);
-        
+
         if (!user) {return NextResponse.json({message: "User does not exist"}, {status: 400});}
 
         const validPassword = await bcryptjs.compare(password, user.password);

@@ -83,7 +83,8 @@ export default function StudyContentSelection() {
             });
 
             if (res.status === 200) {
-                alert("Content generated successfully!");
+                alert("Content Uploaded! Study Generation in Progress.");
+                
                 // Optionally, redirect or clear state
                 //setGenerationList([]);
                 //setConfigMap({});
@@ -297,7 +298,7 @@ export default function StudyContentSelection() {
         {isLoading && (
             <div className="fixed inset-0 z-[9999] bg-white/70 backdrop-blur-sm flex items-center justify-center">
                 <div className="text-xl font-semibold text-gray-800 animate-pulse">
-                    Generating content...
+                    Uploading content...
                 </div>
             </div>
         )}
