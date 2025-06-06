@@ -68,26 +68,20 @@ export default function StudyContentSelection() {
                 formData.append('files', file); // browser will handle the correct MIME
             });
 
-            // console.log("=== FormData Debug ===");
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(`${key}:`, value);
-            //     if (value instanceof File) {
-            //         console.log(`  File details - Name: ${value.name}, Size: ${value.size}, Type: ${value.type}`);
-            //     }
-            // }
-            // console.log("Files array length:", files.length);
-            // console.log("Files array:", files);
-
             const res = await axios.post('/api/generateStudyContent', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
+            const sessionId = res.data.sessionId || '';
+
+            console.log(JSON.stringify({
+                        sessionId: sessionId,
+                        apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY
+                    }));
+
             if (res.status === 200) {
                 alert("Content Uploaded! Study Generation in Progress.");
                 
-                // Optionally, redirect or clear state
-                //setGenerationList([]);
-                //setConfigMap({});
             } else {
                 alert("Failed to generate content. Please try again.");
             }

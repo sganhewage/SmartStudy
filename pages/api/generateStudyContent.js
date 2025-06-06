@@ -5,7 +5,7 @@ import { uploadToGridFS } from '@/models/gridfsUtils'; // update path if needed
 import connect from '@/dbConfig';
 import jwt from 'jsonwebtoken';
 import User from '@/models/userModel';
-import mongoose from 'mongoose';
+import axios from 'axios';
 
 // Important for file uploads in Pages Router
 export const config = {
@@ -101,11 +101,20 @@ export default async function handler(req, res) {
       
       //print session id
       console.log('New session created with ID:', session._id);
-      
+      const sessionIDString = session._id.toString();
+
+      // Call LLM API to generate content
+      const response = await axios.post("http://localhost:8000/generate", {
+          sessionId: sessionIDString,
+          apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY,
+      });
+
+      const data = await response.data;
+      console.log("LLM response:", data);
 
       return res.status(200).json({
         message: 'Session created successfully',
-        sessionId: user.sessions[user.sessions.length - 1]._id
+        sessionId: sessionIDString
       });
     } catch (e) {
       console.error('Upload error:', e);

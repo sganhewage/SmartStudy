@@ -9,8 +9,6 @@ export const POST = async (req) => {
 
     try {
         const {email, password} = await req.json();
-        console.log("received email: ", email);
-        console.log("received password: ", password);
 
         const normalizedEmail = email.toLowerCase().trim();
         const user = await User.findOne({email: normalizedEmail});

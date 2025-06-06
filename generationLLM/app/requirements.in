@@ -18,3 +18,7 @@ python-multipart
 pytesseract
 Pillow
 speechrecognition
+
+# MongoDB support
+pymongo
+gridfs

@@ -2,7 +2,7 @@ from pathlib import Path
 from transformers import pipeline, Pipeline
 from huggingface_hub import snapshot_download
 
-PROJECT_CACHE_ROOT = Path(__file__).resolve().parent / "models"
+PROJECT_CACHE_ROOT = Path(__file__).resolve().parent / ".models"
 
 def load_pipeline(task: str, model_id: str, *,
                   local_subdir: str | None = None,
