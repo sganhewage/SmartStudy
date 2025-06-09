@@ -109,49 +109,94 @@ def _compress_if_needed(text: str) -> str:
     print(f"✅ Compressed to {comp_len} tokens.")
     return " ".join(partials)
 
+def get_token_budget(prompt: str, desired_output: int = 500):
+    input_ids = generator.tokenizer(prompt, return_tensors="pt")["input_ids"]
+    prompt_len = input_ids.shape[1]
+    model_limit = generator.model.config.max_position_embeddings
+
+    budget = model_limit - prompt_len - 1
+    return min(desired_output, max(budget, 50))  # never generate fewer than 50
+
+
+def chunk_prompt_for_generation(context: str, query: str, max_tokens: int = 2048, generation_tokens: int = 600) -> List[str]:
+    """
+    Splits context + query into chunks that leave room for generation.
+    """
+    tokenizer = generator.tokenizer
+    query_ids = tokenizer.encode(f"\n\nQuestion: {query}\nAnswer:", add_special_tokens=False)
+    context_ids = tokenizer.encode(context, add_special_tokens=False)
+
+    # Leave room for query and generation
+    max_context_tokens = max_tokens - len(query_ids) - generation_tokens - 1
+
+    if max_context_tokens <= 0:
+        raise ValueError("Query + generation budget too large for model.")
+
+    chunks = [context_ids[i:i + max_context_tokens]
+              for i in range(0, len(context_ids), max_context_tokens)]
+
+    return [tokenizer.decode(chunk + query_ids, skip_special_tokens=True,
+                             clean_up_tokenization_spaces=True)
+            for chunk in chunks]
+
+
+
+
 def generate_with_progress(prompt: str,
                            *,
                            max_new_tokens: int = 350,
                            **gen_kwargs) -> str:
-    """
-    Stream tokens from `generator` while updating a tqdm bar.
-    Works on CPU, CUDA, or Apple‑Silicon MPS.
-    """
-    # 1) set up streamer
+    tokenizer = generator.tokenizer
+    model = generator.model
+    device = generator.device
+
+    # Tokenize and move to correct device
+    prompt_ids = tokenizer(prompt, return_tensors="pt")
+    prompt_ids = {k: v.to(device) for k, v in prompt_ids.items()}
+
+    prompt_token_len = prompt_ids["input_ids"].shape[1]
+    model_limit = model.config.max_position_embeddings  # 2048 for GPT-Neo
+
+    max_allowed_tokens = model_limit - prompt_token_len
+
+    if max_allowed_tokens <= 0:
+        raise ValueError(f"🚫 Prompt too long: {prompt_token_len} tokens")
+
+    # Prevent overflow by capping generation tokens
+    capped_gen_tokens = min(max_new_tokens, max_allowed_tokens - 1)
+
+    if capped_gen_tokens < 50:
+        print(f"⚠️  Only {capped_gen_tokens} tokens left for generation")
+
     streamer = TextIteratorStreamer(
-        generator.tokenizer,
-        skip_prompt=True,           # don't resend the prompt tokens
+        tokenizer,
+        skip_prompt=True,
         skip_special_tokens=True,
     )
 
-    # 2) kick off generation in a background thread
     def _worker():
-        generator.model.generate(
-            **generator.tokenizer(prompt, return_tensors="pt").to(generator.device),
+        model.generate(
+            **prompt_ids,
             streamer=streamer,
-            max_new_tokens=max_new_tokens,
+            max_new_tokens=capped_gen_tokens,
             **gen_kwargs,
         )
 
     thread = threading.Thread(target=_worker)
     thread.start()
 
-    # 3) consume tokens as they arrive
-    bar = None
-    if tqdm:
-        bar = tqdm(total=max_new_tokens, desc="📝 Generating", leave=False)
-
-    collected = []
+    bar = tqdm(total=capped_gen_tokens, desc="📝 Generating", leave=False) if tqdm else None
+    tokens = []
     for token in streamer:
-        collected.append(token)
+        tokens.append(token)
         if bar:
             bar.update(1)
-
     if bar:
         bar.close()
-    thread.join()
 
-    return "".join(collected).strip()
+    thread.join()
+    return "".join(tokens).strip()
+
 
 
 def single_query_answer(query: str, context: str) -> str:
@@ -175,6 +220,22 @@ def single_query_answer(query: str, context: str) -> str:
     print("✅ Answer generated.")
     # strip the prompt portion to keep only the generated answer
     return response
+
+def chunked_query_answer(query: str, context: str, max_new_tokens: int = 600) -> str:
+    print("🧩 Splitting prompt into safe chunks …")
+    chunks = chunk_prompt_for_generation(context, query, max_tokens=2048, generation_tokens=max_new_tokens)
+
+    all_answers = []
+    for i, chunk in enumerate(progress_iter(chunks, desc="🧠 Chunked generation")):
+        print(f"\n🧠 Generating from chunk {i+1}/{len(chunks)}")
+        try:
+            answer = generate_with_progress(chunk, max_new_tokens=max_new_tokens, do_sample=False, no_repeat_ngram_size=3)
+            all_answers.append(answer)
+        except Exception as e:
+            print(f"❌ Generation failed on chunk {i+1}: {e}")
+    
+    return "\n\n---\n\n".join(all_answers)
+
 
 
 def generate_summary(
@@ -241,10 +302,14 @@ def generate_summary(
 
 
 def save_to_pdf(text: str, output_path: str) -> None:
-    """Save text to a nicely formatted PDF."""
+    """Save text to a nicely formatted PDF, stripping non-latin1 characters."""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+
     for line in text.split("\n"):
-        pdf.multi_cell(0, 10, line)
+        # Replace characters not encodable in Latin-1
+        line_clean = line.encode("latin-1", "replace").decode("latin-1")
+        pdf.multi_cell(0, 10, line_clean)
+
     pdf.output(output_path)

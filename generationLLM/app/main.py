@@ -1,7 +1,7 @@
 # app.py
 from fastapi import FastAPI, UploadFile, Form, HTTPException
 from pydantic import BaseModel
-from llmUtils import extract_text_by_type, single_query_answer
+from llmUtils import extract_text_by_type, single_query_answer, chunked_query_answer, save_to_pdf
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 import gridfs
@@ -120,11 +120,14 @@ def getInstructions(session: str):
     
 def getStudyContent(generation: str, generationConfig: str, generationInstructions, generalInstructions: str, files: str):
     query: str = f"""Your task is to generate a certain type of study content based on the context of the files that have been provided
-        and the general instructions which are: {generalInstructions}. The specific type of content you need to generate is: 
+        and the general instructions which are: {generalInstructions}. There are various forms of study content that can be generated,
+        such as study guides, flashcards, practice tests, a list of key terms, practice problems, etc. I need you to generate the following: 
         {generation}. For this type of study content, you need to follow these instructions: {generationInstructions}. You must also 
         follow the parameters (if any) that have been provided: {generationConfig}. The content that you generate will be converted to
         a PDF, so please ensure that it is well-structured and formatted. The content of the files have been provided above, these files
-        are very important in setting the focus of the content that you generate. Please provide the well-formatted content below:""" 
+        are very important in setting the focus of the content that you generate. Remember that your response should not be instructions
+        that guide me on how to create the study file, but it should simply be then contents of the file. Remember that you are an expert
+        on creating this study content. Please provide the well-formatted content below:""" 
     
     # for each file in the context, provide the name, file type, and use the extractt_text_by_type function to extract the text using the files parameter
     context = ""
@@ -136,12 +139,33 @@ def getStudyContent(generation: str, generationConfig: str, generationInstructio
         context += f"File Name: {file['name']}\nFile Type: {file['contentType']}\nContent:\n{extracted_text}\n\n"
     
     # print("Context for generation:", context)
-    print("Query for generation:", query)
+    # print("Query for generation:", query)
     
-    # single_query_answer(
-    #     query=query,
-    #     context=context
-    # )
+    response = chunked_query_answer(
+        query=query,
+        context=context
+    )
+    
+    save_to_pdf(
+        text=response,
+        output_path=f"genResults/{generation}_content.pdf"
+    )
+    
+    print("Generated Content:", response)
+
+def uploadFile(file_path: str, filename: str = None, content_type: str = "application/pdf") -> ObjectId:
+    """
+    Uploads a file to GridFS and returns the file ID.
+    """
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    filename = filename or os.path.basename(file_path)
+
+    with open(file_path, "rb") as f:
+        file_id = fs.put(f, filename=filename, content_type=content_type)
+        print(f"✅ Uploaded '{filename}' with GridFS ID: {file_id}")
+        return file_id
 
 def main():
     files = (getFiles(findSession('68404e861c7ea1973a183bb8')))
@@ -158,6 +182,25 @@ def main():
             generalInstructions=instructions,
             files=files
         )
+        
+        fileId = uploadFile(
+            file_path=f"genResults/{generation}_content.pdf",
+            filename=f"{generation}_content.pdf",
+            content_type="application/pdf"
+        )
+        
+        # Update the session with the new file ID
+        session = findSession('68404e861c7ea1973a183bb8')
+        if session:
+            users.update_one(
+                {"_id": session["_id"]},
+                {"$push": {"files": {"gridFsId": str(fileId), "fileName": f"{generation}_content.pdf"}}}
+            )
+            print(f"✅ Updated session with new file ID: {fileId}")
+        else:
+            print("❌ Session not found for update.")
+        
+    
     
     
 if __name__ == "__main__":
