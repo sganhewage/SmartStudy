@@ -45,17 +45,6 @@ def get_progress(session_id: str):
 class GenRequest(BaseModel):
     sessionId: str
     apiKey: str
-    
-@app.post("/generate")
-async def generate(data: GenRequest):
-    if data.apiKey.strip() != str(os.environ["LLM_API_KEY"]).strip():
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    
-    session_id = data.sessionId
-    
-    
-
-    return { "message": "Study content generated" }
 
 def findSession(session_id: str):
     for user in users.find():
@@ -69,12 +58,13 @@ def findSession(session_id: str):
 def parseConfigMap(session: str):
     generationDict = {}
     
-    generationList = json.loads(session.get("generationList", [])[0])
+    # print(session.get("generationList", []))
+    # print(session.get("configMap", {}))
+    generationList = json.loads(session.get("generationList", [])[0]) if session.get("generationList") is list else session.get("generationList", [])
     configMap = (session.get("configMap", {}))[0]
     configDict = json.loads(str(configMap))
     
     for generation in generationList:
-        print("Generation:", generation)
         if generation in configDict:
             generationDict[generation] = configDict[generation]
         else:
@@ -153,7 +143,7 @@ def getStudyContent(generation: str, generationConfig: str, generationInstructio
     
     print("Generated Content:", response)
 
-def uploadFile(file_path: str, generation:str, filename: str = None, content_type: str = "application/pdf") -> ObjectId:
+def uploadFile(file_path: str, generation:str, sessionId, filename: str = None, content_type: str = "application/pdf") -> ObjectId:
     """
     Uploads a file to GridFS and returns the file ID.
     """
@@ -166,7 +156,7 @@ def uploadFile(file_path: str, generation:str, filename: str = None, content_typ
         file_id = fs.put(f, filename=filename, content_type=content_type)
         print(f"✅ Uploaded '{filename}' with GridFS ID: {file_id}")
     
-    session = findSession('684706d79a7acba927778123')
+    session = findSession(sessionId)
     if session:
         users.update_one(
             {"sessions._id": session["_id"]},
@@ -179,36 +169,39 @@ def uploadFile(file_path: str, generation:str, filename: str = None, content_typ
         print(f"✅ Updated session with new file ID: {file_id}")
     else:
         print("❌ Session not found for update.")
+        
+    # delete file from genResults folder
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
-def main():
-    files = (getFiles(findSession('68404e861c7ea1973a183bb8')))
-    instructions = getInstructions(findSession('68404e861c7ea1973a183bb8'))
-    generationConfig = parseConfigMap(findSession('68404e861c7ea1973a183bb8'))
+@app.post("/generate")
+async def generate(data: GenRequest):
+    if data.apiKey.strip() != str(os.environ["LLM_API_KEY"]).strip():
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    sessionId = data.sessionId
+    files = (getFiles(findSession(sessionId)))
+    instructions = getInstructions(findSession(sessionId))
+    generationConfig = parseConfigMap(findSession(sessionId))
     print(generationConfig)
     
     for generation in generationConfig:
-        # print("Generation:", generation)
-        # getStudyContent(
-        #     generation=generation,
-        #     generationConfig=generationConfig.get(generation, {}),
-        #     generationInstructions=generationConfig[generation].get("instructions", ""),
-        #     generalInstructions=instructions,
-        #     files=files
-        # )
+        print("Generation:", generation)
+        getStudyContent(
+            generation=generation,
+            generationConfig=generationConfig.get(generation, {}),
+            generationInstructions=generationConfig[generation].get("instructions", ""),
+            generalInstructions=instructions,
+            files=files
+        )
         
         contentType = "application/pdf"
         fileId = uploadFile(
             file_path=f"genResults/{generation}_content.pdf",
             filename=f"{generation}_content.pdf",
             content_type=contentType,
-            generation=generation
+            generation=generation,
+            sessionId=sessionId
         )
-        
-        # Update the session with the new file ID
-        
-        
-    
-    
-    
-if __name__ == "__main__":
-    main()
+
+    return { "message": "Study content generated" }

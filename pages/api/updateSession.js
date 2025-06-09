@@ -68,7 +68,7 @@ export default async function handler(req, res) {
             if (!session) return res.status(404).json({ message: 'Session not found' });
 
             // Identify and delete removed files from GridFS
-            const currentFileIds = session.files.map(f => f.gridFsId.toString());
+            const currentFileIds = session.uploadedFiles.map(f => f.gridFsId.toString());
             const removedFileIds = currentFileIds.filter(id => !parsedRemainingIds.includes(id));
 
             if (removedFileIds.length > 0) {
@@ -91,13 +91,13 @@ export default async function handler(req, res) {
             session.name = name[0];
             session.description = description[0] || '';
             session.instructions = instructions[0] || '';
-            // session.updatedAt = new Date();
+            session.lastUpdated = new Date();
             session.uploadedFiles = [
-                ...user.sessions.id(sessionId).files.filter(f => parsedRemainingIds.includes(f.gridFsId)),
+                ...user.sessions.id(sessionId).uploadedFiles.filter(f => parsedRemainingIds.includes(f.gridFsId)),
                 ...gridfsFiles
             ];
 
-            session.lastUpdated = new Date();
+            // session.updatedAt = new Date();
             user.markModified('sessions');
             console.log("Returned session:", session);
 

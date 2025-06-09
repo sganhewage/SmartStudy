@@ -24,7 +24,7 @@ export default function Home() {
     generationList: [string], 
     configMap: string,
     createdAt: Date
-    lastUpdated: Date
+    updatedAt: Date
   };
   const [sessions, setSessions] = useState<Session[]>([]);
 
@@ -46,16 +46,6 @@ export default function Home() {
   const [sortBy, setSortBy] = useState("newest"); // "newest", "oldest", "name"
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSignout = async () => {
-    try {
-      const res = await axios.post("/api/logout");
-      if (res.status === 200) {
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
 
   const handleNewSession = async () => {
     try {
@@ -148,9 +138,9 @@ export default function Home() {
           )
           .sort((a, b) => {
             if (sortBy === "newest") {
-              return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+              return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
             } else if (sortBy === "oldest") {
-              return new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime();
+              return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
             } else if (sortBy === "name") {
               return a.name.localeCompare(b.name);
             }
@@ -161,7 +151,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold mb-2">{session.name}</h3>
                 <span className="text-sm text-gray-500">
-                  {new Date(session.lastUpdated).toLocaleString()}
+                  {new Date(session.updatedAt).toLocaleString()}
                 </span>
               </div>
               <p className="text-gray-600 mb-4">{session.description}</p>

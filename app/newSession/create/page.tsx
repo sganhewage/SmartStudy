@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSessionContext } from '../SessionContext';
-import { X } from 'lucide-react';
+import { Router, X } from 'lucide-react';
 import axios from "axios";
 import { set } from "mongoose";
+import { useRouter } from "next/navigation";
+import { toast } from 'react-hot-toast'; 
 
 const studyOptions = [
   { label: 'Study Guide', value: 'studyGuide', icon: '📘', description: 'Summarizes topics and key points' },
@@ -45,10 +47,11 @@ export default function StudyContentSelection() {
         setGenerationList(generationList.filter(item => item !== value));
     };
 
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const handleGenerate = async () => {
         if (generationList.length === 0) {
-        alert("Please select at least one item to generate.");
+        toast.error("Please select at least one item to generate.");
         return;
         }
 
@@ -79,18 +82,17 @@ export default function StudyContentSelection() {
                         apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY
                     }));
 
-            if (res.status === 200) {
-                alert("Content Uploaded! Study Generation in Progress.");
-                
+            if (res.status === 200 && sessionId) {
+                toast.success("Content Uploaded! Study Generation in Progress.");
+                setIsLoading(false);
+                router.push(`/sessionView/${sessionId}`)
             } else {
-                alert("Failed to generate content. Please try again.");
+                toast.error("Failed to generate content. Please try again.");
             }
         } catch (error) {
             console.error("Error generating content:", error);
-            alert("An error occurred while generating content. Please try again.");
+            toast.error("An error occurred while generating content. Please try again.");
         }
-
-        setIsLoading(false);
     };
 
   const renderQuestionTypeToggles = () => {

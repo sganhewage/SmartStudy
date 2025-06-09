@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Paperclip, X, Upload, Trash2, Undo2 } from "lucide-react";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SessionPage() {
     const params = useParams();
@@ -105,12 +106,12 @@ export default function SessionPage() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            alert('Changes saved!');
+            toast.success('Changes saved!');
             setIsEditing(false);
             location.reload();
         } catch (error) {
             console.error('Failed to update session:', error);
-            alert('Failed to save changes');
+            toast.error('Failed to save changes');
         } finally {
             setIsSaving(false);
         }
@@ -123,12 +124,12 @@ export default function SessionPage() {
             await axios.delete(`/api/deleteSession`, {
                 data: { sessionId: session._id }
             });
-            alert("Session deleted.");
+            toast.success("Session deleted.");
             // Redirect or refresh page
             window.location.href = "/#existing-sessions"; // Change this to the appropriate route
         } catch (err) {
             console.error("Failed to delete session:", err);
-            alert("Failed to delete session.");
+            toast.error("Failed to delete session.");
         }
     }
 
@@ -136,7 +137,7 @@ export default function SessionPage() {
 
     return (
         <>
-            <div className="min-h-[calc(100vh-95px)] bg-gray-50 pt-[95px]">
+            <div className="min-h-[calc(100vh-95px)] p-10 bg-gray-50 pt-[95px]">
                 <div className="max-w-6xl mx-auto">
                     <div className="mb-8 relative">
                         <h1 className="text-4xl font-bold text-brand mb-2">{session.name}</h1>
@@ -166,7 +167,7 @@ export default function SessionPage() {
                             </div>
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500">Last Updated:</p>
-                                <p className="text-md">{new Date(session.lastUpdated).toLocaleString()}</p>
+                                <p className="text-md">{new Date(session.updatedAt).toLocaleString()}</p>
                             </div>
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500">Instructions:</p>
@@ -188,47 +189,101 @@ export default function SessionPage() {
 
                         <div className="col-span-2">
                             <h2 className="text-xl font-semibold mb-4">Uploaded Files</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                                {session.files.map((file: any) => {
+
+                            {session.uploadedFiles && session.uploadedFiles.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                                {session.uploadedFiles.map((file: any) => {
                                     const isImage = file.fileType?.startsWith("image/");
                                     const isPDF = file.fileType === "application/pdf";
 
                                     return (
-                                        <div
-                                            key={file.gridFsId}
-                                            className="border rounded-lg p-4 flex flex-col items-center text-center shadow"
-                                        >
-                                            <h4 className="font-semibold mb-2 truncate w-full">{file.fileName}</h4>
-                                            {isImage ? (
-                                                <img
-                                                    src={`/api/file/${file.gridFsId}`}
-                                                    alt={file.fileName}
-                                                    className="w-full max-h-60 object-contain rounded"
-                                                />
-                                            ) : isPDF ? (
-                                                <iframe
-                                                    src={`/api/file/${file.gridFsId}`}
-                                                    title={file.fileName}
-                                                    className="w-full h-60 border rounded"
-                                                ></iframe>
-                                            ) : (
-                                                <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-500 italic border rounded">
-                                                    Preview not available
-                                                </div>
-                                            )}
-                                            <p className="text-sm text-gray-500 mt-2">{file.fileType}</p>
-                                            <a
-                                                href={`/api/file/${file.gridFsId}`}
-                                                download={file.fileName}
-                                                className="mt-2 text-blue-600 underline"
-                                            >
-                                                Download
-                                            </a>
+                                    <div
+                                        key={file.gridFsId}
+                                        className="border rounded-lg p-2 flex flex-col items-center text-center shadow"
+                                    >
+                                        <h4 className="font-semibold mb-2 truncate w-full">{file.fileName}</h4>
+                                        {isImage ? (
+                                        <img
+                                            src={`/api/file/${file.gridFsId}`}
+                                            alt={file.fileName}
+                                            className="w-full max-h-60 object-contain rounded"
+                                        />
+                                        ) : isPDF ? (
+                                        <iframe
+                                            src={`/api/file/${file.gridFsId}`}
+                                            title={file.fileName}
+                                            className="w-full h-30 border rounded"
+                                        ></iframe>
+                                        ) : (
+                                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-500 italic border rounded">
+                                            Preview not available
                                         </div>
+                                        )}
+                                        <p className="text-sm text-gray-500 mt-2">{file.fileType}</p>
+                                        <a
+                                        href={`/api/file/${file.gridFsId}`}
+                                        download={file.fileName}
+                                        className="mt-2 text-blue-600 underline"
+                                        >
+                                        Download
+                                        </a>
+                                    </div>
                                     );
                                 })}
-                            </div>
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 italic">No uploaded files.</p>
+                            )}
+                            
+
+                            <h2 className="text-xl font-semibold mb-4 mt-4">Generated Files</h2>
+
+                            {session.generatedFiles && session.generatedFiles.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                                {session.generatedFiles.map((file: any) => {
+                                    const isImage = file.fileType?.startsWith("image/");
+                                    const isPDF = file.fileType === "application/pdf";
+
+                                    return (
+                                    <div
+                                        key={file.gridFsId}
+                                        className="border rounded-lg p-2 flex flex-col items-center text-center shadow"
+                                    >
+                                        <h4 className="font-semibold mb-2 truncate w-full">{file.fileName}</h4>
+                                        {isImage ? (
+                                        <img
+                                            src={`/api/file/${file.gridFsId}`}
+                                            alt={file.fileName}
+                                            className="w-full max-h-60 object-contain rounded"
+                                        />
+                                        ) : isPDF ? (
+                                        <iframe
+                                            src={`/api/file/${file.gridFsId}`}
+                                            title={file.fileName}
+                                            className="w-full h-30 border rounded"
+                                        ></iframe>
+                                        ) : (
+                                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-500 italic border rounded">
+                                            Preview not available
+                                        </div>
+                                        )}
+                                        <p className="text-sm text-gray-500 mt-2">{file.fileType}</p>
+                                        <a
+                                        href={`/api/file/${file.gridFsId}`}
+                                        download={file.fileName}
+                                        className="mt-2 text-blue-600 underline"
+                                        >
+                                        Download
+                                        </a>
+                                    </div>
+                                    );
+                                })}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 italic">No generated files.</p>
+                            )}
                         </div>
+                            
                     </div>
                 </div>
             </div>
