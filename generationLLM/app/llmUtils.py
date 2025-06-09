@@ -37,9 +37,10 @@ generator  = load_pipeline("text-generation",
         "EleutherAI/gpt-neo-125M",   # testing
     )
 
+from io import BytesIO
 
 def extract_text_from_pdf(file_path: str) -> str:
-    with pdfplumber.open(file_path) as pdf:
+    with pdfplumber.open(BytesIO(file_path)) as pdf:
         pages = progress_iter(pdf.pages, desc="📄 Extracting PDF pages")
         return "\n".join(p.extract_text() or "" for p in pages)
 
