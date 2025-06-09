@@ -89,7 +89,7 @@ export default async function handler(req, res) {
         name: sessionName[0], // assuming sessionName is an array
         description: sessionDescription[0] || '', // assuming sessionDescription is an array
         instructions: instructions[0] || '', // assuming instructions is an array
-        files: gridfsFiles,
+        uploadedfiles: gridfsFiles,
         generationList: parsedGenerations,
         configMap: parsedConfig,
         // createdAt: new Date(),
@@ -104,13 +104,13 @@ export default async function handler(req, res) {
       const sessionIDString = session._id.toString();
 
       // Call LLM API to generate content
-      const response = await axios.post("http://localhost:8000/generate", {
-          sessionId: sessionIDString,
-          apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY,
-      });
+      // const response = await axios.post("http://localhost:8000/generate", {
+      //     sessionId: sessionIDString,
+      //     apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY,
+      // });
 
-      const data = await response.data;
-      console.log("LLM response:", data);
+      // const data = await response.data;
+      // console.log("LLM response:", data);
 
       return res.status(200).json({
         message: 'Session created successfully',

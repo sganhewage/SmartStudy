@@ -92,7 +92,7 @@ export default async function handler(req, res) {
             session.description = description[0] || '';
             session.instructions = instructions[0] || '';
             // session.updatedAt = new Date();
-            session.files = [
+            session.uploadedFiles = [
                 ...user.sessions.id(sessionId).files.filter(f => parsedRemainingIds.includes(f.gridFsId)),
                 ...gridfsFiles
             ];

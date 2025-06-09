@@ -84,7 +84,7 @@ def parseConfigMap(session: str):
 
 def getFiles(session):
     fileObjects = []
-    files = session.get("files", [])
+    files = session.get("uploadedFiles", [])
     
     for file in files:
         gridFsId = file.get('gridFsId')
@@ -153,7 +153,7 @@ def getStudyContent(generation: str, generationConfig: str, generationInstructio
     
     print("Generated Content:", response)
 
-def uploadFile(file_path: str, filename: str = None, content_type: str = "application/pdf") -> ObjectId:
+def uploadFile(file_path: str, generation:str, filename: str = None, content_type: str = "application/pdf") -> ObjectId:
     """
     Uploads a file to GridFS and returns the file ID.
     """
@@ -165,7 +165,20 @@ def uploadFile(file_path: str, filename: str = None, content_type: str = "applic
     with open(file_path, "rb") as f:
         file_id = fs.put(f, filename=filename, content_type=content_type)
         print(f"✅ Uploaded '{filename}' with GridFS ID: {file_id}")
-        return file_id
+    
+    session = findSession('684706d79a7acba927778123')
+    if session:
+        users.update_one(
+            {"sessions._id": session["_id"]},
+            {"$push": {"sessions.$.generatedFiles": {
+                "gridFsId": str(file_id),
+                "fileName": f"{generation}_content.pdf",
+                "fileType": content_type
+            }}}
+        )
+        print(f"✅ Updated session with new file ID: {file_id}")
+    else:
+        print("❌ Session not found for update.")
 
 def main():
     files = (getFiles(findSession('68404e861c7ea1973a183bb8')))
@@ -174,31 +187,25 @@ def main():
     print(generationConfig)
     
     for generation in generationConfig:
-        print("Generation:", generation)
-        getStudyContent(
-            generation=generation,
-            generationConfig=generationConfig.get(generation, {}),
-            generationInstructions=generationConfig[generation].get("instructions", ""),
-            generalInstructions=instructions,
-            files=files
-        )
+        # print("Generation:", generation)
+        # getStudyContent(
+        #     generation=generation,
+        #     generationConfig=generationConfig.get(generation, {}),
+        #     generationInstructions=generationConfig[generation].get("instructions", ""),
+        #     generalInstructions=instructions,
+        #     files=files
+        # )
         
+        contentType = "application/pdf"
         fileId = uploadFile(
             file_path=f"genResults/{generation}_content.pdf",
             filename=f"{generation}_content.pdf",
-            content_type="application/pdf"
+            content_type=contentType,
+            generation=generation
         )
         
         # Update the session with the new file ID
-        session = findSession('68404e861c7ea1973a183bb8')
-        if session:
-            users.update_one(
-                {"_id": session["_id"]},
-                {"$push": {"files": {"gridFsId": str(fileId), "fileName": f"{generation}_content.pdf"}}}
-            )
-            print(f"✅ Updated session with new file ID: {fileId}")
-        else:
-            print("❌ Session not found for update.")
+        
         
     
     

@@ -33,7 +33,7 @@ export default function SessionPage() {
                     setEditName(found.name);
                     setEditDescription(found.description);
                     setEditInstructions(found.instructions);
-                    setExistingFiles(found.files || []);
+                    setExistingFiles(found.uploadedFiles || []);
                 } else {
                     console.error('Session not found');
                 }
