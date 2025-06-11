@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SmartStudy
 
-## Getting Started
+**SmartStudy** is an AI-powered web application designed to revolutionize the way students prepare for exams. By leveraging advanced language models, SmartStudy transforms your study materials—such as notes, lectures, and textbooks—into interactive quizzes and flashcards, facilitating efficient and effective learning.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Generate Study Content based on uploaded files and instructions
+- Customize each form of study content to focus on specific areas of content
+- Create and save multiple study sessions organizing uploaded and generated files.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Node.js** (v14 or later)
+- **npm** (v6 or later)
 
-## Learn More
+### Installation
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone the repository**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   git clone https://github.com/sganhewage/SmartStudy.git
+   cd SmartStudy
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Install Dependencies**:
 
-## Deploy on Vercel
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables**:
+Create a .env file in the root directory and add the following:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  ```bash
+  MONGODB_URL="<Your MongoDB URI>"
+  JWT_SECRET_KEY=<Any string sequence>
+  NEXT_PUBLIC_LLM_API_KEY="<Your chosen API's key>"
+  ```
+
+4. **Run the Development Server**:
+  ```bash
+  npm run dev
+  ```
+  Open http://localhost:3000 in your browser to see the application.
+
+**🛠️ Technologies Used**
+- Frontend: Next.js, React, Tailwind CSS
+- Backend: Node.js, Python
+- Database: MongoDB
